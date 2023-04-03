@@ -59,7 +59,7 @@ int main() {
         char send_buf[BUF_SIZE] = {0};
         fgets(send_buf, BUF_SIZE, stdin);
 
-        if (wolfSSL_write(ssl, send_buf, strlen(send_buf)) < 0) {
+        if (wolfSSL_write(ssl, send_buf, (int) strlen(send_buf)) < 0) {
             perror("wolfSSL_write() failure");
             exit(EXIT_FAILURE);
         }
@@ -77,6 +77,7 @@ int main() {
         printf("Server: %s", recv_buf);
     }
 
+    wolfSSL_free(ssl);
     wolfSSL_CTX_free(ctx);
     wolfSSL_Cleanup();
     if (close(socket_fd) < 0) {

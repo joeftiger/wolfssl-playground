@@ -11,7 +11,7 @@
 int main() {
     // initialize wolfssl
     wolfSSL_Init();
-    WOLFSSL_CTX *ctx = wolfSSL_CTX_new(wolfTLSv1_2_server_method());
+    WOLFSSL_CTX *ctx = wolfSSL_CTX_new(wolfTLSv1_2_server_method());    // TLS 1.3 fails with SIGSEGV
     if (ctx == NULL) {
         perror("wolfSSL_CTX_new() failure");
         exit(EXIT_FAILURE);
@@ -96,6 +96,7 @@ int main() {
         }
     }
 
+    wolfSSL_free(ssl);
     wolfSSL_CTX_free(ctx);
     wolfSSL_Cleanup();
     if (shutdown(socket_fd, SHUT_RDWR) < 0) {
