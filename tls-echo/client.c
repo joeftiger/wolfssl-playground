@@ -3,15 +3,22 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+
+#ifndef WOLFSSL_USER_SETTINGS
+#include <wolfssl/options.h>
+#endif
+#include <wolfssl/wolfcrypt/settings.h>
 #include <wolfssl/ssl.h>
 
 #define PORT 9000
 #define BUF_SIZE 1024
 
 int main() {
+    wolfSSL_Debugging_ON();
+
     // initialize wolfssl
     wolfSSL_Init();
-    WOLFSSL_CTX *ctx = wolfSSL_CTX_new(wolfTLSv1_2_client_method());
+    WOLFSSL_CTX *ctx = wolfSSL_CTX_new(wolfTLSv1_3_client_method());
     if (ctx == NULL) {
         perror("wolfSSL_CTX_new() failure");
         exit(EXIT_FAILURE);
@@ -52,8 +59,27 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
+    unsigned short data = 0xA;
+    struct WOLFSSL_EVIDENCE_TYPE evidence;
+    evidence.type = WOLFSSL_EVIDENCE_ENC_NUMERIC;
+    evidence.credType = WOLFSSL_EVIDENCE_CRED_ATTESTATION;
+    evidence.data = (void *) &data;
+
+    struct WOLFSSL_EVIDENCE_TYPE_LIST sup_evidence;
+    sup_evidence.evidence = evidence;
+
+    struct WOLFSSL_EVIDENCE_REQ_CLIENT request = {0};
+//    request.nonce = 1;
+//    request.sup_evidence = &sup_evidence;
+
+    if (wolfSSL_RequestEvidence(ssl, (const void *) &request) != 0) {
+        perror("wolfSSL_CTX_RequestEvidence() failure");
+        exit(EXIT_FAILURE);
+    }
+
     // set wolfssl to use the socket connection
     wolfSSL_set_fd(ssl, socket_fd);
+    wolfSSL_connect(ssl);
 
     while (1) {
         char send_buf[BUF_SIZE] = {0};

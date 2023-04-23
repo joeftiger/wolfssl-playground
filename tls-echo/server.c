@@ -2,16 +2,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
+
+#ifndef WOLFSSL_USER_SETTINGS
+#include <wolfssl/options.h>
+#endif
+#include <wolfssl/wolfcrypt/settings.h>
+
 #include <wolfssl/ssl.h>
 
 #define PORT 9000
-#define BUF_SIZE 1024
+#define BUF_SIZE 10240
 
 int main() {
+    wolfSSL_Debugging_ON();
+
     // initialize wolfssl
     wolfSSL_Init();
-    WOLFSSL_CTX *ctx = wolfSSL_CTX_new(wolfTLSv1_2_server_method());    // TLS 1.3 fails with SIGSEGV
+    WOLFSSL_CTX *ctx = wolfSSL_CTX_new(wolfTLSv1_3_server_method());    // TLS 1.3 fails with SIGSEGV
     if (ctx == NULL) {
         perror("wolfSSL_CTX_new() failure");
         exit(EXIT_FAILURE);
