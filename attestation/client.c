@@ -12,17 +12,36 @@
 #define PORT 9000
 #define BUF_SIZE 1024
 
+WOLFSSL_EVIDENCE create_evidence() {
+    WOLFSSL_EVIDENCE ev;
+    ev.type = "Hello Evidence Type";
+    ev.typeSize = strlen(ev.type);
+    ev.data = "Hello Evidence Data";
+    ev.dataSize = strlen(ev.data);
+
+    return ev;
+}
+
+WOLFSSL_EVIDENCE_LIST create_evidence_list() {
+    WOLFSSL_EVIDENCE_LIST ev_list;
+    ev_list.ev = create_evidence();
+
+    return ev_list;
+}
+
 int main() {
+    wolfSSL_Debugging_ON();
+
     // initialize wolfssl
     wolfSSL_Init();
-    WOLFSSL_CTX *ctx = wolfSSL_CTX_new(wolfTLSv1_3_client_method());
+    WOLFSSL_CTX *ctx = wolfSSL_CTX_new(wolfTLSv1_2_client_method());
     if (ctx == NULL) {
         perror("wolfSSL_CTX_new() failure");
         exit(EXIT_FAILURE);
     }
 
     // load CA certificates
-    if (wolfSSL_CTX_load_verify_locations(ctx, "../certs/ca-cert.pem", 0) != SSL_SUCCESS) {
+    if (wolfSSL_CTX_load_verify_locations(ctx, "../cert/cert.pem", 0) != SSL_SUCCESS) {
         perror("wolfSSL_CTX_load_verify_locations() failure");
         exit(EXIT_FAILURE);
     }
@@ -55,6 +74,9 @@ int main() {
         perror("wolfSSL_new() failure");
         exit(EXIT_FAILURE);
     }
+
+    WOLFSSL_EVIDENCE_LIST evs = create_evidence_list();
+    wolfSSL_RequestEvidence_AsClient(ssl, &evs);
 
     // set wolfssl to use the socket connection
     wolfSSL_set_fd(ssl, socket_fd);

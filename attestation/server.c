@@ -6,35 +6,36 @@
 #ifndef WOLFSSL_USER_SETTINGS
 #include <wolfssl/options.h>
 #endif
-
 #include <wolfssl/ssl.h>
 
 #define PORT 9000
 #define BUF_SIZE 1024
 
 int main() {
+    wolfSSL_Debugging_ON();
+
     // initialize wolfssl
     wolfSSL_Init();
-    WOLFSSL_CTX *ctx = wolfSSL_CTX_new(wolfTLSv1_3_server_method());
+    WOLFSSL_CTX *ctx = wolfSSL_CTX_new(wolfTLSv1_2_server_method());
     if (ctx == NULL) {
         perror("wolfSSL_CTX_new() failure");
         exit(EXIT_FAILURE);
     }
 
     // load CA certificates
-    if (wolfSSL_CTX_load_verify_locations(ctx, "../certs/ca-cert.pem", 0) != SSL_SUCCESS) {
+    if (wolfSSL_CTX_load_verify_locations(ctx, "../cert/cert.pem", 0) != SSL_SUCCESS) {
         perror("wolfSSL_CTX_load_verify_locations() failure");
         exit(EXIT_FAILURE);
     }
 
     // load server certificates
-    if (wolfSSL_CTX_use_certificate_file(ctx, "../certs/server-cert.pem", SSL_FILETYPE_PEM) != SSL_SUCCESS) {
+    if (wolfSSL_CTX_use_certificate_file(ctx, "../cert/cert.pem", SSL_FILETYPE_PEM) != SSL_SUCCESS) {
         perror("wolfSSL_CTX_use_certificate_file() failed");
         exit(EXIT_FAILURE);
     }
 
     // load keys
-    if (wolfSSL_CTX_use_PrivateKey_file(ctx, "../certs/server-key.pem", SSL_FILETYPE_PEM) != SSL_SUCCESS) {
+    if (wolfSSL_CTX_use_PrivateKey_file(ctx, "../cert/key.pem", SSL_FILETYPE_PEM) != SSL_SUCCESS) {
         perror("wolfSSL_CTX_use_PrivateKey_file() failed");
         exit(EXIT_FAILURE);
     }
