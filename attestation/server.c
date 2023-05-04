@@ -16,7 +16,7 @@ int main() {
 
     // initialize wolfssl
     wolfSSL_Init();
-    WOLFSSL_CTX *ctx = wolfSSL_CTX_new(wolfTLSv1_2_server_method());
+    WOLFSSL_CTX *ctx = wolfSSL_CTX_new(wolfTLSv1_3_server_method());
     if (ctx == NULL) {
         perror("wolfSSL_CTX_new() failure");
         exit(EXIT_FAILURE);
@@ -81,6 +81,11 @@ int main() {
 
     // set wolfssl to use the socket connection
     wolfSSL_set_fd(ssl, conn_fd);
+
+//    WOLFSSL_SESSION *session = wolfSSL_get_session(ssl);
+//    const unsigned char * sessionID = wolfSSL_get_sessionID(session);
+//
+//    printf("%s", sessionID);
 
     while (1) {
         char recv_buf[BUF_SIZE] = {0};

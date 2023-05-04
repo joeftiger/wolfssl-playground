@@ -4,9 +4,9 @@ project(wolfssl-playground C)
 set(CMAKE_C_STANDARD 23)
 
 find_library(WOLFSSL_LIB wolfssl /usr/local/lib/)
-link_libraries("${WOLFSSL_LIB}")
+link_libraries(debug "${WOLFSSL_LIB}")
 
-add_link_options(-harden -pedantic -lwolfssl)
+add_link_options(-pedantic -lwolfssl)
 
 add_executable(echo-server echo/server.c)
 add_executable(echo-client echo/client.c)

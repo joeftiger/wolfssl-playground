@@ -12,29 +12,15 @@
 #define PORT 9000
 #define BUF_SIZE 1024
 
-WOLFSSL_EVIDENCE create_evidence() {
-    WOLFSSL_EVIDENCE ev;
-    ev.type = "Hello Evidence Type";
-    ev.typeSize = strlen(ev.type);
-    ev.data = "Hello Evidence Data";
-    ev.dataSize = strlen(ev.data);
-
-    return ev;
-}
-
-WOLFSSL_EVIDENCE_LIST create_evidence_list() {
-    WOLFSSL_EVIDENCE_LIST ev_list;
-    ev_list.ev = create_evidence();
-
-    return ev_list;
-}
+static word8 ATT_DATA = 0xf0;
+static ATT_REQUEST ATT_REQ = { .length = 1, .request = &ATT_DATA };
 
 int main() {
     wolfSSL_Debugging_ON();
 
     // initialize wolfssl
     wolfSSL_Init();
-    WOLFSSL_CTX *ctx = wolfSSL_CTX_new(wolfTLSv1_2_client_method());
+    WOLFSSL_CTX *ctx = wolfSSL_CTX_new(wolfTLSv1_3_client_method());
     if (ctx == NULL) {
         perror("wolfSSL_CTX_new() failure");
         exit(EXIT_FAILURE);
@@ -75,8 +61,7 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
-    WOLFSSL_EVIDENCE_LIST evs = create_evidence_list();
-    wolfSSL_RequestEvidence_AsClient(ssl, &evs);
+    wolfSSL_AttestationRequest(ssl, &ATT_REQ);
 
     // set wolfssl to use the socket connection
     wolfSSL_set_fd(ssl, socket_fd);
