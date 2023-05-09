@@ -13,7 +13,7 @@
 #define BUF_SIZE 1024
 
 static word8 ATT_DATA = 0xf0;
-static ATT_REQUEST ATT_REQ = { .length = 1, .request = &ATT_DATA };
+//static ATT_REQUEST ATT_REQ = { .length = 1, .request = &ATT_DATA };
 
 int main() {
     wolfSSL_Debugging_ON();
@@ -61,11 +61,17 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
-    wolfSSL_AttestationRequest(ssl, &ATT_REQ);
+    if (wolfSSL_AttestationRequest(ssl, ATT_DATA) != SSL_SUCCESS) {
+        perror("wolfSSL_AttestationRequest() failure");
+        exit(EXIT_FAILURE);
+    }
 
     // set wolfssl to use the socket connection
     wolfSSL_set_fd(ssl, socket_fd);
-    wolfSSL_connect(ssl);
+    if (wolfSSL_connect(ssl) != SSL_SUCCESS) {
+        perror("wolfSSL_connect() failure");
+        exit(EXIT_FAILURE);
+    }
 
     while (1) {
         char send_buf[BUF_SIZE] = {0};

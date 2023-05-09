@@ -82,10 +82,21 @@ int main() {
     // set wolfssl to use the socket connection
     wolfSSL_set_fd(ssl, conn_fd);
 
-//    WOLFSSL_SESSION *session = wolfSSL_get_session(ssl);
-//    const unsigned char * sessionID = wolfSSL_get_sessionID(session);
-//
-//    printf("%s", sessionID);
+    if (wolfSSL_accept_TLSv13(ssl) < 0) {
+        perror("wolfSSL_accept_TLSv13() failure");
+        exit(EXIT_FAILURE);
+    }
+
+    byte *req = NULL;
+    if (wolfSSL_GetAttestationRequest(ssl, req) != 0) {
+        perror("wolfSSL_GetAttestationRequest() failure");
+        exit(EXIT_FAILURE);
+    }
+    if (req == NULL) {
+        perror("Attestation Request is NULL");
+        exit(EXIT_FAILURE);
+    }
+    printf("Attestation Request = %s", req);
 
     while (1) {
         char recv_buf[BUF_SIZE] = {0};
