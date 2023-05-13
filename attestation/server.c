@@ -4,15 +4,18 @@
 #include <string.h>
 
 #ifndef WOLFSSL_USER_SETTINGS
+
 #include <wolfssl/options.h>
+
 #endif
+
 #include <wolfssl/ssl.h>
 
 #define PORT 9000
 #define BUF_SIZE 1024
 
 int main() {
-    wolfSSL_Debugging_ON();
+//    wolfSSL_Debugging_ON();
 
     // initialize wolfssl
     wolfSSL_Init();
@@ -80,12 +83,32 @@ int main() {
     }
 
     // set wolfssl to use the socket connection
-    wolfSSL_set_fd(ssl, conn_fd);
+    if (wolfSSL_set_fd(ssl, conn_fd) != SSL_SUCCESS) {
+        perror("wolfSSL_set_fd() failure");
+        exit(EXIT_FAILURE);
+    }
 
-//    WOLFSSL_SESSION *session = wolfSSL_get_session(ssl);
-//    const unsigned char * sessionID = wolfSSL_get_sessionID(session);
-//
-//    printf("%s", sessionID);
+    if (wolfSSL_accept(ssl) != SSL_SUCCESS) {
+        perror("wolfSSL_accept() failure");
+        exit(EXIT_FAILURE);
+    }
+
+    const ATT_REQUEST *req = wolfSSL_GetAttestationRequest(ssl);
+    if (req == NULL) {
+        perror("wolfSSL_GetAttestationRequest() failure");
+        exit(EXIT_FAILURE);
+    }
+
+    printf(">> req.length = %d\n>> req.request = [", req->length);
+    for (int i = 0; i < req->length; i++) {
+        printf("0x%X", ((byte *) req->request)[i]);
+
+        if (i < req->length - 1) {
+            printf(", ");
+        } else {
+            printf("]\n");
+        }
+    }
 
     while (1) {
         char recv_buf[BUF_SIZE] = {0};

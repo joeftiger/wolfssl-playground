@@ -12,8 +12,8 @@
 #define PORT 9000
 #define BUF_SIZE 1024
 
-static word8 ATT_DATA = 0xf0;
-static ATT_REQUEST ATT_REQ = { .length = 1, .request = &ATT_DATA };
+static unsigned char ATT_DATA[] = {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xA, 0xB, 0xC, 0xD, 0xE, 0xF};
+static ATT_REQUEST ATT_REQ = { .length = sizeof(ATT_DATA), .request = &ATT_DATA };
 
 int main() {
 //    wolfSSL_Debugging_ON();
