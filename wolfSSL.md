@@ -21,6 +21,11 @@ Requires to call `wolfSSL_KeepArrays()` before.
 > `ssl.c`: `wolfSSL_connect()`
 > > `tls13.c`: `wolfSSL_connect_TLSv13()`
 > > > `tls13.c`: `SendTls13ClientHello()`
+> > > > `tls13.c`: `TLSX_GetRequestSize()`
+> > > > > `tls.c`: `TLSX_GetSize()`
+> > > > > > `tls.c`: `ATT_GET_SIZE()`
+> > > > `tls13.c`: `AddTls13Headers()`
+> > > >
 > > > > `tls.c`: `TLSX_WriteRequest()`
 > > > > - Do we need a semaphore for this???
 > > > > > `tls.c`: `TLSX_Write()`
