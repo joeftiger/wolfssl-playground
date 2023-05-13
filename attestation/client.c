@@ -16,7 +16,7 @@ static word8 ATT_DATA = 0xf0;
 static ATT_REQUEST ATT_REQ = { .length = 1, .request = &ATT_DATA };
 
 int main() {
-    wolfSSL_Debugging_ON();
+//    wolfSSL_Debugging_ON();
 
     // initialize wolfssl
     wolfSSL_Init();
@@ -61,11 +61,20 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
-    wolfSSL_AttestationRequest(ssl, &ATT_REQ);
+    if (wolfSSL_AttestationRequest(ssl, &ATT_REQ) != SSL_SUCCESS) {
+        perror("wolfSSL_AttestationRequest() failure");
+        exit(EXIT_FAILURE);
+    }
 
     // set wolfssl to use the socket connection
-    wolfSSL_set_fd(ssl, socket_fd);
-    wolfSSL_connect(ssl);
+    if (wolfSSL_set_fd(ssl, socket_fd) != SSL_SUCCESS) {
+        perror("wolfSSL_set_fd() failure");
+        exit(EXIT_FAILURE);
+    }
+    if (wolfSSL_connect(ssl) != SSL_SUCCESS) {
+        perror("wolfSSL_connect() failure");
+        exit(EXIT_FAILURE);
+    }
 
     while (1) {
         char send_buf[BUF_SIZE] = {0};
