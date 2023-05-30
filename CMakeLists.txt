@@ -14,5 +14,5 @@ add_executable(echo-client echo/client.c)
 add_executable(tls-server tls-echo/server.c)
 add_executable(tls-client tls-echo/client.c)
 
-add_executable(attestation-server attestation/server.c)
-add_executable(attestation-client attestation/client.c)
+add_executable(attestation-server attestation/server.c attestation/attestation.h)
+add_executable(attestation-client attestation/client.c attestation/attestation.h)

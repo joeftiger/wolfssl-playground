@@ -15,7 +15,6 @@ Requires to call `wolfSSL_KeepArrays()` before.
 > `ssl.c`: `wolfSSL_export_keying_material()`
 > > `tls13.c`: `Tls13_Exporter()`
 
-
 ### Client side
 
 > `ssl.c`: `wolfSSL_connect()`
@@ -31,6 +30,11 @@ Requires to call `wolfSSL_KeepArrays()` before.
 > > > > > `tls.c`: `TLSX_Write()`
 > > > > > > `tls.c`: `EV_WRITE()` -> `TLSX_EvidenceRequest_Write()`
 > > > > > > - We have to encode the evidence request data into the extension data.
+> > >
+> > > ... <br>
+> > > `tls13.c`: `DoTls13CertificateVerify()`
+> > > > `tls.c`: `VerifyAttestation()`
+> > > > > `ssl.c`: `wolfSSL_export_keying_material()`
 
 ### Server side
 
@@ -43,19 +47,17 @@ Requires to call `wolfSSL_KeepArrays()` before.
 > > > > > `tls13.c`: `DoTls13HandShakeMsgType()`
 > > > > > > `tls13.c`: `DoTls13ClientHello()`
 > > > > > > > `tls13.c`: `TLSX_Parse()`
+> > > > > >
+> > > > > > `internal.h`: `HashInput()` needed before attestation generation
+> > > 
+> > > `tls13.c`: `SendTls13EncryptedExtensions()`
+> > > > > `tls.c`: `GenerateAttestation()`
+> > > > > > `ssl.c`: `wolfSSL_export_keying_material()`
 > > > > > > >
-> > > > > > > `internal.h`: `HashInput()` to append handshake message hashes. We have to filter the ClientHello hash.
-> 
-> > > `tls13.c`: `SendTls13ServerHello()`
-> > > > `tls.c`: `TLSX_WriteResponse()`
-> > > > - What about the semaphores?
-> > > > > `tlc.c`: `TLSX_Write()`
-> > > > > > `tls.c`: `EV_WRITE()` -> `TLSX_EvidenceRequest_Write()`
-> > > > > > - We have to encode the evidence request data into the extension data.
-
-
-
-> > `tls13.c`: `DoTls13EncryptedExtensions()`
-> > `tls.c`: `TLSX_Parse()`
-> > > `tls.c`: `EV_PARSE()` -> `TLSX_EvidenceRequest_Parse()`
-> > > - We have to decode the extension data as a evidence request
+> > > > > > `tls.c`: `TLSX_UseAttestationRequest()`
+> > > > > 
+> > > > > `tls.c`: `TLSX_WriteResponse()`
+> > > > > - What about the semaphores?
+> > > > > > `tlc.c`: `TLSX_Write()`
+> > > > > > > `tls.c`: `EV_WRITE()` -> `TLSX_EvidenceRequest_Write()`
+> > > > > > > - We have to encode the evidence request data into the extension data.

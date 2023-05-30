@@ -4,19 +4,14 @@
 #include <string.h>
 #include <unistd.h>
 
-#ifndef WOLFSSL_USER_SETTINGS
-#include <wolfssl/options.h>
-#endif
-#include <wolfssl/ssl.h>
+#include "attestation.h"
 
 #define PORT 9000
 #define BUF_SIZE 1024
 
-static unsigned char ATT_DATA[] = {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xA, 0xB, 0xC, 0xD, 0xE, 0xF};
-static ATT_REQUEST ATT_REQ = { .length = sizeof(ATT_DATA), .request = &ATT_DATA };
-
 int main() {
 //    wolfSSL_Debugging_ON();
+    int ret;
 
     // initialize wolfssl
     wolfSSL_Init();
@@ -27,15 +22,16 @@ int main() {
     }
 
     // load CA certificates
-    if (wolfSSL_CTX_load_verify_locations(ctx, "../cert/cert.pem", 0) != SSL_SUCCESS) {
+    if ((ret = wolfSSL_CTX_load_verify_locations(ctx, "../cert/cert.pem", 0)) != SSL_SUCCESS) {
         perror("wolfSSL_CTX_load_verify_locations() failure");
+        printf("error value: %d", ret);
         exit(EXIT_FAILURE);
     }
 
     // create socket
     int socket_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (socket_fd < 0) {
-        perror("socket() failed");
+        perror("socket() failure");
         exit(EXIT_FAILURE);
     }
 
@@ -44,13 +40,15 @@ int main() {
     addr.sin_family = AF_INET;
     addr.sin_port = htons(PORT);
     // Convert IPv4 and IPv6 addresses from text to binary form
-    if (inet_pton(AF_INET, "127.0.0.1", &addr.sin_addr) != 1) {
-        perror("inet_pton() failed");
+    if ((ret = inet_pton(AF_INET, "127.0.0.1", &addr.sin_addr)) != 1) {
+        perror("inet_pton() failure");
+        printf("error value: %d", ret);
         exit(EXIT_FAILURE);
     }
 
-    if (connect(socket_fd, (const struct sockaddr *) (const struct sockaddr_in *) &addr, sizeof(addr)) < 0) {
-        perror("connect() failed");
+    if ((ret = connect(socket_fd, (const struct sockaddr *) (const struct sockaddr_in *) &addr, sizeof(addr))) < 0) {
+        perror("connect() failure");
+        printf("error value: %d", ret);
         exit(EXIT_FAILURE);
     }
 
@@ -60,20 +58,37 @@ int main() {
         perror("wolfSSL_new() failure");
         exit(EXIT_FAILURE);
     }
+    wolfSSL_KeepArrays(ssl);
 
-    if (wolfSSL_AttestationRequest(ssl, &ATT_REQ) != SSL_SUCCESS) {
+    if (wolfSSL_SetVerifyAttestation(ssl, verifyAttestation) != SSL_SUCCESS) {
+        perror("wolfSSL_SetVerifyAttestation() failure");
+        exit(EXIT_FAILURE);
+    }
+
+    if ((ret = wolfSSL_AttestationRequest(ssl, &ATT_REQ)) != SSL_SUCCESS) {
         perror("wolfSSL_AttestationRequest() failure");
+        printf("error value: %d", ret);
         exit(EXIT_FAILURE);
     }
 
     // set wolfssl to use the socket connection
-    if (wolfSSL_set_fd(ssl, socket_fd) != SSL_SUCCESS) {
+    if ((ret = wolfSSL_set_fd(ssl, socket_fd)) != SSL_SUCCESS) {
         perror("wolfSSL_set_fd() failure");
+        printf("error value: %d", ret);
         exit(EXIT_FAILURE);
     }
-    if (wolfSSL_connect(ssl) != SSL_SUCCESS) {
+    if ((ret = wolfSSL_connect(ssl)) != SSL_SUCCESS) {
         perror("wolfSSL_connect() failure");
+        printf("error value: %d", ret);
         exit(EXIT_FAILURE);
+    }
+
+    const ATT_REQUEST *req = wolfSSL_GetAttestationRequest(ssl);
+    if (req == NULL) {
+        perror("wolfSSL_GetAttestationRequest() failure");
+//        exit(EXIT_FAILURE);
+    } else {
+        wolfSSL_AttestationRequest_print_ex(stdout, req, TRUE, FALSE);
     }
 
     while (1) {
@@ -102,7 +117,7 @@ int main() {
     wolfSSL_CTX_free(ctx);
     wolfSSL_Cleanup();
     if (close(socket_fd) < 0) {
-        perror("close() failed");
+        perror("close() failure");
         exit(EXIT_FAILURE);
     }
     exit(EXIT_SUCCESS);

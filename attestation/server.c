@@ -3,13 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifndef WOLFSSL_USER_SETTINGS
-
-#include <wolfssl/options.h>
-
-#endif
-
-#include <wolfssl/ssl.h>
+#include "attestation.h"
 
 #define PORT 9000
 #define BUF_SIZE 1024
@@ -33,27 +27,27 @@ int main() {
 
     // load server certificates
     if (wolfSSL_CTX_use_certificate_file(ctx, "../cert/cert.pem", SSL_FILETYPE_PEM) != SSL_SUCCESS) {
-        perror("wolfSSL_CTX_use_certificate_file() failed");
+        perror("wolfSSL_CTX_use_certificate_file() failure");
         exit(EXIT_FAILURE);
     }
 
     // load keys
     if (wolfSSL_CTX_use_PrivateKey_file(ctx, "../cert/key.pem", SSL_FILETYPE_PEM) != SSL_SUCCESS) {
-        perror("wolfSSL_CTX_use_PrivateKey_file() failed");
+        perror("wolfSSL_CTX_use_PrivateKey_file() failure");
         exit(EXIT_FAILURE);
     }
 
     // create socket
     int socket_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (socket_fd < 0) {
-        perror("socket() failed");
+        perror("socket() failure");
         exit(EXIT_FAILURE);
     }
 
     /* setsockopt: Eliminates "ERROR on binding: Address already in use" error. */
     int opt = 1;
     if (setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))) {
-        perror("setsockopt() failed");
+        perror("setsockopt() failure");
         exit(EXIT_FAILURE);
     }
 
@@ -63,13 +57,13 @@ int main() {
     server_addr.sin_addr.s_addr = INADDR_ANY;
     server_addr.sin_port = htons(PORT);
     if (bind(socket_fd, (const struct sockaddr *) &server_addr, sizeof(server_addr)) < 0) {
-        perror("bind() failed");
+        perror("bind() failure");
         exit(EXIT_FAILURE);
     }
 
     // listen to and accept new socket connections
     if (listen(socket_fd, 3) < 0) {
-        perror("listen() failed");
+        perror("listen() failure");
         exit(EXIT_FAILURE);
     }
 
@@ -79,6 +73,12 @@ int main() {
     WOLFSSL *ssl = wolfSSL_new(ctx);
     if (ssl == NULL) {
         perror("wolfSSL_new() failure");
+        exit(EXIT_FAILURE);
+    }
+    wolfSSL_KeepArrays(ssl);
+
+    if (wolfSSL_SetGenerateAttestation(ssl, generateAttestation) != SSL_SUCCESS) {
+        perror("wolfSSL_SetGenerateAttestation() failure");
         exit(EXIT_FAILURE);
     }
 
@@ -96,18 +96,9 @@ int main() {
     const ATT_REQUEST *req = wolfSSL_GetAttestationRequest(ssl);
     if (req == NULL) {
         perror("wolfSSL_GetAttestationRequest() failure");
-        exit(EXIT_FAILURE);
-    }
-
-    printf(">> req.length = %d\n>> req.request = [", req->length);
-    for (int i = 0; i < req->length; i++) {
-        printf("0x%X", ((byte *) req->request)[i]);
-
-        if (i < req->length - 1) {
-            printf(", ");
-        } else {
-            printf("]\n");
-        }
+//        exit(EXIT_FAILURE);
+    } else {
+        wolfSSL_AttestationRequest_print_ex(stdout, req, TRUE, FALSE);
     }
 
     while (1) {
@@ -133,7 +124,7 @@ int main() {
     wolfSSL_CTX_free(ctx);
     wolfSSL_Cleanup();
     if (shutdown(socket_fd, SHUT_RDWR) < 0) {
-        perror("shutdown() failed");
+        perror("shutdown() failure");
         exit(EXIT_FAILURE);
     }
     exit(EXIT_SUCCESS);
