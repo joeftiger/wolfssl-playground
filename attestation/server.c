@@ -98,7 +98,7 @@ int main() {
         perror("wolfSSL_GetAttestationRequest() failure");
 //        exit(EXIT_FAILURE);
     } else {
-        wolfSSL_AttestationRequest_print_ex(stdout, req, TRUE, FALSE);
+        wolfSSL_AttestationRequest_print_ex(stdout, req, TRUE);
     }
 
     while (1) {
