@@ -9,7 +9,7 @@
 
 #include <wolfssl/ssl.h>
 
-#define PORT 9000
+#define SERVER_PORT 9000
 #define BUF_SIZE 1024
 
 int main() {
@@ -57,7 +57,7 @@ int main() {
     struct sockaddr_in server_addr;
     server_addr.sin_family = AF_INET;
     server_addr.sin_addr.s_addr = INADDR_ANY;
-    server_addr.sin_port = htons(PORT);
+    server_addr.sin_port = htons(SERVER_PORT);
     if (bind(socket_fd, (const struct sockaddr *) &server_addr, sizeof(server_addr)) < 0) {
         perror("bind() failed");
         exit(EXIT_FAILURE);

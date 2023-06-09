@@ -9,7 +9,7 @@
 #endif
 #include <wolfssl/ssl.h>
 
-#define PORT 9000
+#define SERVER_PORT 9000
 #define BUF_SIZE 1024
 
 int main() {
@@ -37,7 +37,7 @@ int main() {
     // create address for connection
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
-    addr.sin_port = htons(PORT);
+    addr.sin_port = htons(SERVER_PORT);
     // Convert IPv4 and IPv6 addresses from text to binary form
     if (inet_pton(AF_INET, "127.0.0.1", &addr.sin_addr) != 1) {
         perror("inet_pton() failed");
