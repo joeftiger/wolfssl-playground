@@ -16,7 +16,7 @@ static word8 ATT_DATA = 0xf0;
 //static ATT_REQUEST ATT_REQ = { .length = 1, .request = &ATT_DATA };
 
 int main() {
-    wolfSSL_Debugging_ON();
+//    wolfSSL_Debugging_ON();
 
     // initialize wolfssl
     wolfSSL_Init();

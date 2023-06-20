@@ -12,7 +12,7 @@
 #define BUF_SIZE 1024
 
 int main() {
-    wolfSSL_Debugging_ON();
+//    wolfSSL_Debugging_ON();
 
     // initialize wolfssl
     wolfSSL_Init();
@@ -87,7 +87,7 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
-    byte *req = NULL;
+    byte *req = malloc(sizeof(byte));
     if (wolfSSL_GetAttestationRequest(ssl, req) != 0) {
         perror("wolfSSL_GetAttestationRequest() failure");
         exit(EXIT_FAILURE);
