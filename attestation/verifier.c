@@ -36,7 +36,7 @@ bool provide_RA_verification(WOLFSSL *ssl) {
     printf("  nonce: 0x%lX\n  ", nonce);
 
     ATT_REQUEST att_request = supported_att_type(nonce);
-    wolfSSL_AttestationRequest_print(stdout, &att_request);
+    wolfSSL_AttestationRequest_print_ex(stdout, &att_request, TRUE);
     byte *send;
     int size;
     if ((size = encode_att(&att_request, &send)) < 0) {

@@ -12,7 +12,7 @@
 #include "connections.h"
 
 int genAtt(const ATT_REQUEST *req, const byte *challenge, byte *output) {
-    wolfSSL_AttestationRequest_print(stdout, req);
+    wolfSSL_AttestationRequest_print_ex(stdout, req, TRUE); // is a String currently: ATT_TYPE
 
     printf("    Challenge: ");
     print_hex_arr(challenge, req->challengeSize);
@@ -44,9 +44,7 @@ int main() {
         exit(EXIT_FAILURE);
     }
     const ATT_REQUEST *req = wolfSSL_GetAttestationRequest(server->ssl);
-    if (req != NULL) {
-        wolfSSL_AttestationRequest_print_ex(stdout, req, TRUE);
-    } else {
+    if (req == NULL) {
         perror("wolfSSL_GetAttestationRequest() failure");
     }
 
