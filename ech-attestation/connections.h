@@ -1,5 +1,9 @@
+// Follows https://github.com/wolfSSL/wolfssl-examples/commit/452ac9e109dcc6074465370aff2f422a314143d2#diff-42e50ab72d489dc766fcd6feced8c87b5062202f68d2789c3d49ae9623974c6c
 #ifndef CONNECTIONS_H
 #define CONNECTIONS_H
+
+#include <string.h>
+#include <strings.h>
 
 #ifndef WOLFSSL_USER_SETTINGS
 
@@ -7,14 +11,21 @@
 
 #endif
 
+#include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <wolfssl/ssl.h>
+#include <wolfssl/wolfcrypt/coding.h>
 
 #include "attestation.h"
 
 #define SERVER_PORT 9000
 #define VERIFIER_PORT 9001
 #define BUF_SIZE 16384
+
+#define PUBLIC_SERVER_NAME "ech-attestation-server.ch"
+#define PRIVATE_SERVER_NAME "ech-attestation-server-private.ch"
+#define PRIVATE_SERVER_NAME_LEN strlen(PRIVATE_SERVER_NAME)
 
 typedef struct Server {
     WOLFSSL_CTX *ctx;
@@ -29,10 +40,9 @@ typedef struct Client {
     WOLFSSL *server;
     int verifier_fd;
     int server_fd;
-    word64 nonce;
 } Client;
 
-Server *server_new(uint16_t port) {
+Server *ech_server_new(uint16_t port, bool is_server) {
     Server *server = malloc(sizeof(Server));
     if (!server) {
         perror("malloc() failure");
@@ -43,6 +53,44 @@ Server *server_new(uint16_t port) {
     if (!server->ctx) {
         perror("wolfSSL_CTX_new() failure");
         return NULL;
+    }
+
+    // use ECH
+    if (is_server) {
+        if (wolfSSL_CTX_GenerateEchConfig(server->ctx, PUBLIC_SERVER_NAME, 0, 0, 0) != WOLFSSL_SUCCESS) {
+            perror("wolfSSL_CTX_GenerateEchConfig() failure");
+            return NULL;
+        }
+
+        byte echConfig[512];
+        word32 echConfigLen = 512;
+        char echConfigBase64[512];
+        word32 echConfigBase64Len = 512;
+        if (wolfSSL_CTX_GetEchConfigs(server->ctx, echConfig, &echConfigLen) != WOLFSSL_SUCCESS) {
+            perror("wolfSSL_CTX_GetEchConfigs() failure");
+            return NULL;
+        }
+
+        if (Base64_Encode_NoNl(echConfig, echConfigLen, (byte *) echConfigBase64, &echConfigBase64Len) != 0) {
+            perror("Base64_Encode_NoNl() failure");
+            return NULL;
+        }
+
+        FILE *f = fopen("ech.conf", "w");
+        if (!f) {
+            perror("fopen() failure");
+            return NULL;
+        }
+
+        printf("ECH config: %s\n", echConfigBase64);
+        fprintf(f, "%s", echConfigBase64);
+        fclose(f);
+
+        if (wolfSSL_CTX_UseSNI(server->ctx, WOLFSSL_SNI_HOST_NAME, PRIVATE_SERVER_NAME, PRIVATE_SERVER_NAME_LEN) !=
+            WOLFSSL_SUCCESS) {
+            perror("wolfSSL_CTX_UseSNI() failure");
+            return NULL;
+        }
     }
 
     // load CA certificates
@@ -154,6 +202,34 @@ Client *client_new() {
             return NULL;
         }
         wolfSSL_KeepArrays(*ssl);
+    }
+
+    // use ECH for client <-> server connection
+    {
+        // read config from 'ech.conf' saved by server
+        char *echConfigs64 = NULL;
+        size_t len;
+        FILE *f = fopen("ech.conf", "r");
+        if (!f) {
+            perror("fopen() failure");
+            return NULL;
+        }
+        ssize_t echConfigs64Len = getdelim(&echConfigs64, &len, '\0', f);
+        if (echConfigs64Len < 0) {
+            perror("getdelim() failure");
+            return NULL;
+        }
+        printf("ECH config: %s\n", echConfigs64);
+
+        if (wolfSSL_SetEchConfigsBase64(client->server, echConfigs64, echConfigs64Len) != WOLFSSL_SUCCESS) {
+            perror("wolfSSL_SetEchConfigsBase64() failure");
+            return NULL;
+        }
+        if (wolfSSL_UseSNI(client->server, WOLFSSL_SNI_HOST_NAME, PRIVATE_SERVER_NAME, PRIVATE_SERVER_NAME_LEN) !=
+            WOLFSSL_SUCCESS) {
+            perror("wolfSSL_UseSNI() failure");
+            return NULL;
+        }
     }
 
     return client;

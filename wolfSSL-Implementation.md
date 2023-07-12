@@ -1,6 +1,7 @@
 # wolfSSL Implementation for Remote Attestation
 
 ## Protocol
+
 | Client                              | Server                                          |
 |-------------------------------------|-------------------------------------------------|
 | Client Hello { AttestationRequest } |                                                 |
@@ -11,16 +12,14 @@
 |                                     |                                                 |
 
 ## Generation of Attestation Evidence
+
 The attestation certificate contains
+
 - public key `PKₜₗₛ`
 - attestation claims
-One of which must be 
+  One of which must be
 
 [//]: # (TODO)
-
-
-
-
 
 # OLD STUFF BELOW
 
@@ -31,8 +30,9 @@ https://www.ietf.org/archive/id/draft-fossati-tls-attestation-03.html
 ## Evidence Extensions
 
 The evidence will be transmitted as either
+
 1. **Attestation-only**: requires new Certificate Type by IANA.
-2. **Attestation alongside X.509 certificates**: 
+2. **Attestation alongside X.509 certificates**:
 
 ## IANA Considerations
 
@@ -46,8 +46,9 @@ The evidence will be transmitted as either
   > I do not find where they support different certificate types. Is it `enum CertType`?
   > It contains way too many types though???
 
-  > This requires the extensions `client_certificate_type` and `server_certificate_type` to specify the certificate type.
-  > However, wolfSSL does not seem to support these extensions. Meaning, that 
+  > This requires the extensions `client_certificate_type` and `server_certificate_type` to specify the certificate
+  type.
+  > However, wolfSSL does not seem to support these extensions. Meaning, that
 
 ## TLS Client and Server Handshake Behavior
 

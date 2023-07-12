@@ -5,8 +5,11 @@
 #include <unistd.h>
 
 #ifndef WOLFSSL_USER_SETTINGS
+
 #include <wolfssl/options.h>
+
 #endif
+
 #include <wolfssl/ssl.h>
 
 #define SERVER_PORT 9000

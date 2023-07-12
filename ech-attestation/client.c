@@ -4,7 +4,15 @@
 
 #endif
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#ifndef CONNECTIONS_H
+
 #include "connections.h"
+
+#endif
 
 Client *client;
 

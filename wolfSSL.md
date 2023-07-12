@@ -10,6 +10,7 @@ Sources:
 ## Flow inside wolfSSL
 
 ### Keying Material Exporter
+
 Requires to call `wolfSSL_KeepArrays()` before.
 
 > `ssl.c`: `wolfSSL_export_keying_material()`
@@ -49,13 +50,13 @@ Requires to call `wolfSSL_KeepArrays()` before.
 > > > > > > > `tls13.c`: `TLSX_Parse()`
 > > > > > >
 > > > > > > `internal.h`: `HashInput()` needed before attestation generation
-> > > 
+> > >
 > > > `tls13.c`: `SendTls13EncryptedExtensions()`
 > > > > > `tls.c`: `GenerateAttestation()`
 > > > > > > `ssl.c`: `wolfSSL_export_keying_material()`
 > > > > > > >
 > > > > > > `tls.c`: `TLSX_UseAttestationRequest()`
-> > > > > 
+> > > > >
 > > > > > `tls.c`: `TLSX_WriteResponse()`
 > > > > > - What about the semaphores?
 > > > > > > `tlc.c`: `TLSX_Write()`

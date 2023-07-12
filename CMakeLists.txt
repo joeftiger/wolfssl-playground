@@ -10,11 +10,8 @@ add_link_options(
         -pedantic
         -lwolfssl
         -fpie -pie
-        -fstack-protector-all -fsanitize=safe-stack
-        -fsanitize=cfi -flto
-        -Wl -z relro
-        -Wl,-z,now
-        -Wformat -Wformat-security -Werror=format-security
+        -fstack-protector-all
+        -Wformat -Wformat-security -Werror=format-security -Werror
 )
 
 add_executable(echo-server echo/server.c)
@@ -26,3 +23,7 @@ add_executable(tls-client tls-echo/client.c)
 add_executable(attestation-server attestation/server.c attestation/attestation.h attestation/connections.h)
 add_executable(attestation-client attestation/client.c attestation/attestation.h attestation/connections.h)
 add_executable(attestation-verifier attestation/verifier.c attestation/attestation.h attestation/connections.h)
+
+add_executable(ech-attestation-server ech-attestation/server.c ech-attestation/attestation.h ech-attestation/connections.h)
+add_executable(ech-attestation-client ech-attestation/client.c ech-attestation/attestation.h ech-attestation/connections.h)
+add_executable(ech-attestation-verifier ech-attestation/verifier.c ech-attestation/attestation.h ech-attestation/connections.h)

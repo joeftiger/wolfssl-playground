@@ -1,3 +1,5 @@
+#include <wolfssl/wolfcrypt/logging.h>
+
 #ifndef WOLFSSL_USER_SETTINGS
 
 #include <wolfssl/options.h>
@@ -27,7 +29,7 @@ int genAtt(const ATT_REQUEST *req, const byte *challenge, byte *output) {
 }
 
 int main() {
-    Server *server = server_new(SERVER_PORT);
+    Server *server = ech_server_new(SERVER_PORT, TRUE);
     if (!server) {
         perror("server_new() failure");
         exit(EXIT_FAILURE);
