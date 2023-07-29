@@ -9,7 +9,7 @@ This project depends on the changes in
 my [wolfSSL branch](https://github.com/joeftiger/wolfssl/tree/remote-attestation) (do not forget to checkout the
 `remote-attestation` branch!).
 Please follow wolfSSL's official instructions on how to build it.
-However, we required additional flags to be able to work with remote attestation and optional encrypted client hello:
+However, we require additional flags to be able to work with remote attestation and optional encrypted client hello:
 
 ### Required Feature Flags for wolfSSL
 
