@@ -1,6 +1,25 @@
 # wolfssl-playground
 
-The wolfssl playground to test the TLS extension for remote attestation in my [wolfssl branch](https://github.com/joeftiger/wolfssl/tree/remote-attestation).
+The wolfssl playground to test the TLS extension for remote attestation in
+my [wolfSSL branch](https://github.com/joeftiger/wolfssl/tree/remote-attestation).
+
+## Dependencies
+
+This project depends on the changes in
+my [wolfSSL branch](https://github.com/joeftiger/wolfssl/tree/remote-attestation) (do not forget to checkout the
+`remote-attestation` branch!).
+Please follow wolfSSL's official instructions on how to build it.
+However, we required additional flags to be able to work with remote attestation and optional encrypted client hello:
+
+### Required Feature Flags for wolfSSL
+
+In general we recommend adding the debug flag `-DWOLFSSL_DEBUG:STRING=yes`.
+
+| Mode                | Flags                                                                                                                                                                                                                 |
+|---------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| TLS                 | `N/A` (default wolfSSL flags suffice)                                                                                                                                                                                 |
+| TLS with RA         | `-DWOLFSSL_DEBUG:STRING=yes -DWOLFSSL_KEYING_MATERIAL:STRING=yes -DWOLFSSL_REMOTE_ATTESTATION:STRING=yes`                                                                                                             |
+| TLS with RA and ECH | `-DWOLFSSL_DEBUG:STRING=yes -DWOLFSSL_CURVE25519:STRING=yes -DWOLFSSL_ECH:STRING=yes -DWOLFSSL_HPKE:STRING=yes -DWOLFSSL_KEYING_MATERIAL:STRING=yes -DWOLFSSL_REMOTE_ATTESTATION:STRING=yes -DWOLFSSL_SNI:STRING=yes` |
 
 ## Structure
 
@@ -54,6 +73,7 @@ LD_LIBRARY_PATH=/usr/local/lib/ ./ech-attestation-server
 ```
 
 ### Order of running
+
 In general, the order of running the executables is the following:
 
 1. `verifier` (if running with remote attestation)
