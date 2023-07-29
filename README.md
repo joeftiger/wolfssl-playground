@@ -9,17 +9,18 @@ This project depends on the changes in
 my [wolfSSL branch](https://github.com/joeftiger/wolfssl/tree/remote-attestation) (do not forget to checkout the
 `remote-attestation` branch!).
 Please follow wolfSSL's official instructions on how to build it.
-However, we require additional flags to be able to work with remote attestation and optional encrypted client hello:
+However, we require additional flags to be able to work with remote attestation and optional encrypted client hello.
+They are given below for cmake:
 
 ### Required Feature Flags for wolfSSL
 
-In general we recommend adding the debug flag `-DWOLFSSL_DEBUG:STRING=yes`.
+In general we recommend adding the debug flag `-DWOLFSSL_DEBUG=yes`.
 
-| Mode                | Flags                                                                                                                                                                                                                 |
-|---------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| TLS                 | `N/A` (default wolfSSL flags suffice)                                                                                                                                                                                 |
-| TLS with RA         | `-DWOLFSSL_DEBUG:STRING=yes -DWOLFSSL_KEYING_MATERIAL:STRING=yes -DWOLFSSL_REMOTE_ATTESTATION:STRING=yes`                                                                                                             |
-| TLS with RA and ECH | `-DWOLFSSL_DEBUG:STRING=yes -DWOLFSSL_CURVE25519:STRING=yes -DWOLFSSL_ECH:STRING=yes -DWOLFSSL_HPKE:STRING=yes -DWOLFSSL_KEYING_MATERIAL:STRING=yes -DWOLFSSL_REMOTE_ATTESTATION:STRING=yes -DWOLFSSL_SNI:STRING=yes` |
+| Mode                | Flags                                                                                                                                                                |
+|---------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| TLS                 | `N/A` (default wolfSSL flags suffice)                                                                                                                                |
+| TLS with RA         | `-DWOLFSSL_DEBUG=yes -DWOLFSSL_KEYING_MATERIAL=yes -DWOLFSSL_REMOTE_ATTESTATION=yes`                                                                                 |
+| TLS with RA and ECH | `-DWOLFSSL_DEBUG=yes -DWOLFSSL_CURVE25519=yes -DWOLFSSL_ECH=yes -DWOLFSSL_HPKE=yes -DWOLFSSL_KEYING_MATERIAL=yes -DWOLFSSL_REMOTE_ATTESTATION=yes -DWOLFSSL_SNI=yes` |
 
 ## Structure
 
