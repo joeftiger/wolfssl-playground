@@ -3,12 +3,14 @@ project(wolfssl-playground C)
 
 set(CMAKE_C_STANDARD 23)
 
-find_library(WOLFSSL_LIB wolfssl)
-link_libraries(debug "${WOLFSSL_LIB}")
+find_library(WOLFSSL_LIB wolfssl "/usr/local/lib/")
+#link_libraries(debug "${WOLFSSL_LIB}")
+link_libraries(optimized "${WOLFSSL_LIB}")
 
 add_link_options(
         -pedantic
         -lwolfssl
+        -ljansson
         -fpie -pie
         -fstack-protector-all
         -Wformat -Wformat-security -Werror=format-security -Werror
@@ -27,6 +29,9 @@ add_executable(attestation-verifier attestation/verifier.c attestation/attestati
 add_executable(ech-attestation-server ech-attestation/server.c ech-attestation/attestation.h ech-attestation/connections.h)
 add_executable(ech-attestation-client ech-attestation/client.c ech-attestation/attestation.h ech-attestation/connections.h)
 add_executable(ech-attestation-verifier ech-attestation/verifier.c ech-attestation/attestation.h ech-attestation/connections.h)
+
+add_executable(bench-server bench/server.c bench/attestation.h bench/connections.h)
+add_executable(bench-client bench/client.c bench/attestation.h bench/connections.h)
 
 add_custom_target(echo DEPENDS echo-server echo-client)
 add_custom_target(tls-echo DEPENDS tls-server tls-client)
